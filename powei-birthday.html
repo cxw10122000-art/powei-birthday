@@ -444,5 +444,41 @@ window.onGiftRevealed = function () {
 };
   </script>
 
+  <script>
+window.showSaveButton = function () {
+  const btn = document.getElementById('save-btn');
+  btn.style.display = 'block';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => { btn.style.opacity = '1'; });
+  });
+
+  btn.addEventListener('click', async () => {
+    btn.textContent = '⏳ Generating...';
+    btn.disabled = true;
+    try {
+      const card = document.getElementById('birthday-card');
+      const canvas = await html2canvas(card, {
+        backgroundColor: '#0d1117',
+        scale: window.devicePixelRatio || 2,
+        useCORS: true,
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = 'happy-birthday-powei.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      btn.textContent = '✓ Saved!';
+    } catch (err) {
+      console.error('html2canvas error:', err);
+      const errEl = document.getElementById('save-error');
+      errEl.textContent = '截圖失敗 — 請手動截圖儲存 📸';
+      errEl.style.display = 'block';
+      btn.textContent = '💾 Save as Image';
+      btn.disabled = false;
+    }
+  });
+};
+  </script>
+
 </body>
 </html>
