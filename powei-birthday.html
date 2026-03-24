@@ -164,7 +164,154 @@
   <div id="save-error"></div>
 
   <script>
-    // JS will go here in Task 2+
+(function () {
+  // ── Content definition ──────────────────────────────────────
+  const HEADER =
+    '╭──────────────────────────────────────╮\n' +
+    '│  claude birthday-deploy v33.0.327    │\n' +
+    '│  Model: claude-powei-opus-33         │\n' +
+    '╰──────────────────────────────────────╯';
+
+  const STEPS = [
+    { type: 'command', text: 'powei --age 33 --deploy birthday-surprise' },
+    { type: 'spinner', label: 'Initializing birthday protocol...' },
+    { type: 'check',   text: 'Identity verified: Powei (age=33, role=chloes-exclusive-engineer)' },
+    { type: 'check',   text: 'Scanning gift preferences...' },
+    { type: 'check',   text: 'Budget analysis complete' },
+    { type: 'check',   text: 'Compatibility check passed' },
+    { type: 'check',   text: 'Love level: <span class="tag">mass-production（量產等級）</span>' },
+  ];
+
+  const TASK_HTML =
+    '<div class="prompt-line" style="margin-top:12px;">Task: Deploy birthday surprise</div>' +
+    '<div class="indent muted">Priority: <span class="tag tag-red">CRITICAL</span></div>' +
+    '<div class="indent muted">Assignee: <span style="color:#e6edf3;">Chloe.C</span></div>' +
+    '<div class="indent muted">Status: <span class="green">Ready to merge</span></div>';
+
+  const GIFT_HTML =
+    '<div class="prompt-line">gift.deploy({</div>' +
+    '<div class="indent">item: <span class="blue">"iPhone 17e 128G 白色"</span>,</div>' +
+    '<div class="indent">discount: <span class="gold">"50% OFF"</span>,</div>' +
+    '<div class="indent">from: <span class="blue">"Chloe.C"</span>,</div>' +
+    '<div class="indent">status: <span class="green">"approved ✓"</span></div>' +
+    '<div class="prompt-line" style="margin-top:0;">})</div>';
+
+  const FOOTER_HTML =
+    '<div class="gold">🎂 Happy Birthday, Powei!</div>' +
+    '<div class="indent muted">Redeemable: immediately</div>' +
+    '<div class="indent muted">Expires: never</div>' +
+    '<div class="indent muted" style="margin-top:4px;">— Chloe.C</div>';
+
+  // ── Timing constants ─────────────────────────────────────────
+  const CHAR_DELAY    = 40;   // ms per character
+  const START_DELAY   = 300;  // ms before animation starts
+  const STEP_GAP      = 400;  // ms between ✓ steps
+  const SPINNER_MS    = 600;  // ms spinner runs before each ✓ step
+  const SPINNER_FRAMES = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function typeText(el, text, isHTML = false) {
+    if (isHTML) { el.innerHTML = text; return; }
+    el.textContent = '';
+    for (const ch of text) {
+      el.textContent += ch;
+      await sleep(CHAR_DELAY);
+    }
+  }
+
+  async function runSpinner(containerEl, label) {
+    const el = document.createElement('div');
+    el.className = 'muted';
+    containerEl.appendChild(el);
+    const end = Date.now() + SPINNER_MS;
+    let i = 0;
+    while (Date.now() < end) {
+      el.textContent = SPINNER_FRAMES[i % SPINNER_FRAMES.length] + ' ' + label;
+      i++;
+      await sleep(60);
+    }
+    containerEl.removeChild(el);
+  }
+
+  // ── Main sequence ────────────────────────────────────────────
+  async function run() {
+    await sleep(START_DELAY);
+
+    // 1. Header box (instant — it's ASCII art, not typed)
+    document.getElementById('header-box').textContent = HEADER;
+    await sleep(200);
+
+    const area = document.getElementById('typewriter-area');
+
+    for (const step of STEPS) {
+      if (step.type === 'command') {
+        const line = document.createElement('div');
+        line.className = 'prompt-line';
+        line.style.margin = '12px 0 8px';
+        area.appendChild(line);
+        await typeText(line, step.text);
+        await sleep(STEP_GAP);
+
+      } else if (step.type === 'spinner') {
+        await runSpinner(area, step.label);
+        await sleep(100);
+
+      } else if (step.type === 'check') {
+        const line = document.createElement('div');
+        line.className = 'check-line';
+        area.appendChild(line);
+        line.innerHTML = step.text; // allow span tags
+        await sleep(STEP_GAP);
+      }
+    }
+
+    // 2. Show Claude icon
+    await sleep(300);
+    document.getElementById('icon-row').style.display = 'block';
+    await sleep(400);
+
+    // 3. Task block
+    const taskBlock = document.getElementById('task-block');
+    taskBlock.style.display = 'block';
+    taskBlock.innerHTML = TASK_HTML;
+    await sleep(500);
+
+    // 4. Reveal scratch card
+    revealScratchArea(GIFT_HTML, FOOTER_HTML);
+  }
+
+  // expose for scratch module
+  window._birthdayGiftHTML  = null;
+  window._birthdayFooterHTML = null;
+  window._revealScratchArea  = null; // set by Task 3
+
+  function revealScratchArea(giftHTML, footerHTML) {
+    window._birthdayGiftHTML   = giftHTML;
+    window._birthdayFooterHTML = footerHTML;
+
+    // Fill gift content (hidden under canvas)
+    document.getElementById('gift-content').innerHTML = giftHTML;
+
+    // Show wrapper with fade-in
+    const wrapper = document.getElementById('scratch-wrapper');
+    wrapper.style.display = 'block';
+    wrapper.style.opacity = '0';
+    wrapper.style.transition = 'opacity 300ms ease';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { wrapper.style.opacity = '1'; });
+    });
+
+    const hint = document.getElementById('scratch-hint');
+    hint.style.display = 'block';
+
+    // Init scratch canvas (Task 3)
+    if (typeof window.initScratch === 'function') window.initScratch();
+  }
+
+  document.addEventListener('DOMContentLoaded', run);
+})();
   </script>
 
 </body>
