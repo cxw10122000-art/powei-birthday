@@ -315,7 +315,6 @@
   <script>
     window.initScratch = function () {
   const canvas  = document.getElementById('scratch-canvas');
-  const wrapper = document.getElementById('scratch-wrapper');
   const gift    = document.getElementById('gift-content');
   const ctx     = canvas.getContext('2d');
 
@@ -331,6 +330,7 @@
     canvas.width  = rect.width  * dpr;
     canvas.height = rect.height * dpr;
     drawScratchLayer();
+    ctx.globalCompositeOperation = 'destination-out';
   }
 
   function drawScratchLayer() {
@@ -349,6 +349,7 @@
 
   // ── Scratch logic ────────────────────────────────────────────
   let isScratching = false;
+  let revealed = false;
 
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
@@ -363,7 +364,6 @@
     if (!isScratching) return;
     if (e.touches && e.touches.length > 1) return; // ignore multi-touch
     const { x, y } = getPos(e);
-    ctx.globalCompositeOperation = 'destination-out';
     ctx.beginPath();
     ctx.arc(x, y, BRUSH_R, 0, Math.PI * 2);
     ctx.fill();
@@ -382,6 +382,8 @@
   }
 
   function fullReveal() {
+    if (revealed) return;
+    revealed = true;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.style.pointerEvents = 'none';
     document.getElementById('scratch-hint').style.display = 'none';
@@ -393,7 +395,9 @@
   canvas.addEventListener('mousedown', (e) => { isScratching = true; scratch(e); });
   canvas.addEventListener('mousemove', scratch);
   canvas.addEventListener('mouseup',   () => { isScratching = false; checkReveal(); });
-  canvas.addEventListener('mouseleave',() => { isScratching = false; });
+  canvas.addEventListener('mouseleave', () => {
+    if (isScratching) { isScratching = false; checkReveal(); }
+  });
 
   // Touch events
   canvas.addEventListener('touchstart', (e) => {
@@ -408,6 +412,7 @@
     isScratching = false;
     checkReveal();
   });
+  canvas.addEventListener('touchcancel', () => { isScratching = false; });
 };
   </script>
 
