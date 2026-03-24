@@ -571,12 +571,34 @@ window.showSaveButton = function () {
         useCORS: true,
         logging: false,
       });
+
+      // Try Web Share API (iOS native share sheet → Save to Photos)
+      if (navigator.canShare) {
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const file = new File([blob], 'happy-birthday-powei.png', { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Happy Birthday, Powei! 🎂',
+          });
+          btn.textContent = '✓ Shared!';
+          return;
+        }
+      }
+
+      // Fallback: download for desktop browsers
       const link = document.createElement('a');
       link.download = 'happy-birthday-powei.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
       btn.textContent = '✓ Saved!';
     } catch (err) {
+      if (err.name === 'AbortError') {
+        // User cancelled the share sheet — that's fine
+        btn.textContent = '💾 Save as Image';
+        btn.disabled = false;
+        return;
+      }
       const errEl = document.getElementById('save-error');
       errEl.textContent = '截圖失敗 — 請手動截圖儲存 📸';
       errEl.style.display = 'block';
