@@ -312,5 +312,104 @@
 })();
   </script>
 
+  <script>
+    window.initScratch = function () {
+  const canvas  = document.getElementById('scratch-canvas');
+  const wrapper = document.getElementById('scratch-wrapper');
+  const gift    = document.getElementById('gift-content');
+  const ctx     = canvas.getContext('2d');
+
+  // ── Sizing (devicePixelRatio aware) ─────────────────────────
+  const dpr = window.devicePixelRatio || 1;
+  const isTouch = window.matchMedia('(pointer: coarse)').matches;
+  const BRUSH_R = (isTouch ? 36 : 28) * dpr;
+
+  function resizeCanvas() {
+    const rect = gift.getBoundingClientRect();
+    canvas.style.width  = rect.width  + 'px';
+    canvas.style.height = rect.height + 'px';
+    canvas.width  = rect.width  * dpr;
+    canvas.height = rect.height * dpr;
+    drawScratchLayer();
+  }
+
+  function drawScratchLayer() {
+    ctx.fillStyle = '#8b949e';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Hint text on scratch layer
+    ctx.fillStyle = '#0d1117';
+    ctx.font = `bold ${14 * dpr}px 'Courier New'`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('█████████████████████', canvas.width / 2, canvas.height / 2 - 10 * dpr);
+    ctx.fillText('█████████████████████', canvas.width / 2, canvas.height / 2 + 10 * dpr);
+  }
+
+  resizeCanvas();
+
+  // ── Scratch logic ────────────────────────────────────────────
+  let isScratching = false;
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const src  = e.touches ? e.touches[0] : e;
+    return {
+      x: (src.clientX - rect.left) * dpr,
+      y: (src.clientY - rect.top)  * dpr,
+    };
+  }
+
+  function scratch(e) {
+    if (!isScratching) return;
+    if (e.touches && e.touches.length > 1) return; // ignore multi-touch
+    const { x, y } = getPos(e);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, BRUSH_R, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function checkReveal() {
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let cleared = 0;
+    const total = canvas.width * canvas.height;
+    // sample every 4th pixel for performance
+    for (let i = 3; i < data.length; i += 16) {
+      if (data[i] < 128) cleared++;
+    }
+    const ratio = cleared / (total / 4);
+    if (ratio >= 0.7) fullReveal();
+  }
+
+  function fullReveal() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.pointerEvents = 'none';
+    document.getElementById('scratch-hint').style.display = 'none';
+    // Confetti + footer + save button (Task 4 & 5)
+    if (typeof window.onGiftRevealed === 'function') window.onGiftRevealed();
+  }
+
+  // Mouse events
+  canvas.addEventListener('mousedown', (e) => { isScratching = true; scratch(e); });
+  canvas.addEventListener('mousemove', scratch);
+  canvas.addEventListener('mouseup',   () => { isScratching = false; checkReveal(); });
+  canvas.addEventListener('mouseleave',() => { isScratching = false; });
+
+  // Touch events
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (e.touches.length === 1) { isScratching = true; scratch(e); }
+  }, { passive: false });
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    scratch(e);
+  }, { passive: false });
+  canvas.addEventListener('touchend', () => {
+    isScratching = false;
+    checkReveal();
+  });
+};
+  </script>
+
 </body>
 </html>
