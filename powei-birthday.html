@@ -212,8 +212,7 @@
   // ── Helpers ──────────────────────────────────────────────────
   function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-  async function typeText(el, text, isHTML = false) {
-    if (isHTML) { el.innerHTML = text; return; }
+  async function typeText(el, text) {
     el.textContent = '';
     for (const ch of text) {
       el.textContent += ch;
@@ -285,7 +284,6 @@
   // expose for scratch module
   window._birthdayGiftHTML  = null;
   window._birthdayFooterHTML = null;
-  window._revealScratchArea  = null; // set by Task 3
 
   function revealScratchArea(giftHTML, footerHTML) {
     window._birthdayGiftHTML   = giftHTML;
@@ -310,7 +308,7 @@
     if (typeof window.initScratch === 'function') window.initScratch();
   }
 
-  document.addEventListener('DOMContentLoaded', run);
+  document.addEventListener('DOMContentLoaded', () => run().catch(console.error));
 })();
   </script>
 
