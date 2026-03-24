@@ -421,19 +421,17 @@
   <script>
 window.onGiftRevealed = function () {
   // 1. Confetti
-  confetti({
-    particleCount: 150,
-    spread: 70,
-    origin: { y: 0.6 },
-  });
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+    });
+  }
 
   // 2. Show footer with fade-in
   const footer = document.getElementById('footer');
-  footer.innerHTML = window._birthdayFooterHTML ||
-    '<div class="gold">🎂 Happy Birthday, Powei!</div>' +
-    '<div class="indent muted">Redeemable: immediately</div>' +
-    '<div class="indent muted">Expires: never</div>' +
-    '<div class="indent muted" style="margin-top:4px;">— Chloe.C</div>';
+  footer.innerHTML = window._birthdayFooterHTML;
   footer.style.display  = 'block';
   footer.style.opacity  = '0';
   footer.style.transition = 'opacity 300ms ease';
@@ -471,7 +469,6 @@ window.showSaveButton = function () {
       link.click();
       btn.textContent = '✓ Saved!';
     } catch (err) {
-      console.error('html2canvas error:', err);
       const errEl = document.getElementById('save-error');
       errEl.textContent = '截圖失敗 — 請手動截圖儲存 📸';
       errEl.style.display = 'block';
