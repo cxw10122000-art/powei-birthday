@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Happy Birthday, Powei! 🎂</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #010409;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 32px 16px 48px;
+    }
+
+    #birthday-card {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 24px;
+      width: 100%;
+      max-width: 520px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      color: #e6edf3;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 480px) {
+      #birthday-card { font-size: 11px; padding: 16px; }
+    }
+
+    .green  { color: #3fb950; }
+    .blue   { color: #58a6ff; }
+    .gold   { color: #ffd700; }
+    .muted  { color: #8b949e; }
+    .red    { color: #ff7b72; }
+
+    .header-box {
+      color: #58a6ff;
+      margin-bottom: 16px;
+      white-space: pre;
+    }
+
+    .prompt-line { margin: 8px 0; }
+    .prompt-line::before { content: '❯ '; color: #3fb950; }
+
+    .check-line { margin: 2px 0; }
+    .check-line::before { content: '✓ '; color: #3fb950; }
+
+    .indent { margin-left: 20px; }
+
+    .icon-row {
+      text-align: center;
+      font-size: 36px;
+      margin: 16px 0;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #1a4731;
+      color: #3fb950;
+      padding: 1px 8px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
+    .tag-red {
+      background: #3d1a1a;
+      color: #ff7b72;
+    }
+
+    /* Scratch area */
+    #scratch-wrapper {
+      margin: 16px 0 4px;
+      position: relative;
+      display: none; /* shown after typewriter ends */
+    }
+
+    #gift-content {
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 14px;
+      background: #161b22;
+    }
+
+    #scratch-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      border-radius: 6px;
+      cursor: crosshair;
+    }
+
+    .scratch-hint {
+      text-align: center;
+      color: #8b949e;
+      font-size: 11px;
+      margin-top: 6px;
+    }
+
+    /* Save button (outside #birthday-card) */
+    #save-btn {
+      margin-top: 20px;
+      display: none;
+      background: #1f6feb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 300ms ease;
+    }
+
+    #save-btn:hover { background: #388bfd; }
+
+    #save-error {
+      margin-top: 8px;
+      color: #ff7b72;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="birthday-card">
+
+    <!-- Header box -->
+    <div class="header-box" id="header-box"></div>
+
+    <!-- Typewriter output area -->
+    <div id="typewriter-area"></div>
+
+    <!-- Claude icon (hidden until typewriter done) -->
+    <div class="icon-row" id="icon-row" style="display:none;">🤖🎂</div>
+
+    <!-- Task block (hidden until typewriter done) -->
+    <div id="task-block" style="display:none;"></div>
+
+    <!-- Scratch card wrapper -->
+    <div id="scratch-wrapper">
+      <div id="gift-content"></div>
+      <canvas id="scratch-canvas"></canvas>
+    </div>
+    <div class="scratch-hint" id="scratch-hint" style="display:none;">⏎ Scratch to approve &amp; merge</div>
+
+    <!-- Footer (hidden until revealed) -->
+    <div id="footer" style="display:none; margin-top:16px;"></div>
+
+  </div>
+
+  <!-- Save button lives OUTSIDE #birthday-card -->
+  <button id="save-btn">💾 Save as Image</button>
+  <div id="save-error"></div>
+
+  <script>
+    // JS will go here in Task 2+
+  </script>
+
+</body>
+</html>
